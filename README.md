@@ -141,27 +141,7 @@ trueno-backend/
 
 Edita el archivo `.env` con los valores correspondientes:
 
-```env
-# Puerto del servidor
-PORT=3000
-NODE_ENV=development
 
-# Cadena de conexión de MongoDB Atlas
-MONGODB_URI=mongodb+srv://<usuario>:<password>@<cluster>.mongodb.net/trueno_inventario?retryWrites=true&w=majority
-
-# Credenciales iniciales del usuario Administrador
-ADMIN_EMAIL=admin@trueno219.com
-ADMIN_PASSWORD=trueno2026!
-
-# Clave secreta para firma de JSON Web Tokens (mínimo 64 caracteres)
-JWT_SECRET=c8f5e7192a95c47a1f6d338a0b0d3e5187fa44299b6df7ea198d0ce9f6b539a2
-JWT_EXPIRES_IN=7d
-
-# Origen permitido por CORS (URL del frontend en Vite/Vue)
-FRONTEND_URL=http://localhost:5173
-```
-
----
 
 ## ☁️ Conexión con MongoDB Atlas
 
