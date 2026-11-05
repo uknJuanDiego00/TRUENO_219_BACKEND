@@ -1,5 +1,15 @@
 
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
 require('dotenv').config();
+
+const dns = require('dns');
+// Solución para Windows y redes locales que rechazan consultas SRV (querySrv ECONNREFUSED)
+try {
+  dns.setServers(['8.8.8.8', '1.1.1.1', '8.8.4.4']);
+} catch (e) {
+  // Ignorar si el entorno de ejecución no permite modificar los servidores DNS
+}
 
 const mongoose = require('mongoose');
 
