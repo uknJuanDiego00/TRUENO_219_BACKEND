@@ -1,0 +1,37 @@
+{
+  "name": "trueno-backend",
+  "version": "1.0.0",
+  "description": "Backend para Trueno Inventario - Sistema de gestión de inventario y ventas",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "test": "node src/scripts/unitTests.js",
+    "seed": "node src/scripts/seedFromLocalStorage.js",
+    "seed:check": "node src/scripts/checkSeedStatus.js"
+  },
+  "keywords": [
+    "inventario",
+    "ventas",
+    "trueno",
+    "mongodb",
+    "express"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.0",
+    "express-mongo-sanitize": "^2.2.0",
+    "express-rate-limit": "^7.4.0",
+    "helmet": "^7.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.7.0",
+    "morgan": "^1.10.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  }
+}

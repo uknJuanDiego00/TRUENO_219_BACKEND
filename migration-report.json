@@ -1,0 +1,92 @@
+{
+  "timestamp": "2026-11-05T01:56:55.251Z",
+  "durationSeconds": 12.47,
+  "database": "trueno_inventario",
+  "collections": [
+    "users",
+    "configs",
+    "categories",
+    "products",
+    "clients",
+    "sales",
+    "debts",
+    "inventory_movements",
+    "pending_sales"
+  ],
+  "countsInDatabase": {
+    "users": 1,
+    "configs": 1,
+    "categories": 9,
+    "products": 477,
+    "clients": 48,
+    "sales": 73,
+    "debts": 36,
+    "inventory_movements": 456
+  },
+  "metrics": {
+    "users": {
+      "found": 1,
+      "valid": 1,
+      "inserted": 0,
+      "updated": 1,
+      "skipped": 0,
+      "errors": 0
+    },
+    "configs": {
+      "found": 1,
+      "valid": 1,
+      "inserted": 1,
+      "updated": 0,
+      "skipped": 0,
+      "errors": 0
+    },
+    "categories": {
+      "found": 9,
+      "valid": 9,
+      "inserted": 0,
+      "updated": 9,
+      "skipped": 0,
+      "errors": 0
+    },
+    "products": {
+      "found": 477,
+      "valid": 477,
+      "inserted": 0,
+      "updated": 477,
+      "skipped": 0,
+      "errors": 0
+    },
+    "clients": {
+      "found": 48,
+      "valid": 48,
+      "inserted": 0,
+      "updated": 48,
+      "skipped": 0,
+      "errors": 0
+    },
+    "sales": {
+      "found": 73,
+      "valid": 73,
+      "inserted": 0,
+      "updated": 73,
+      "skipped": 0,
+      "errors": 0
+    },
+    "debts": {
+      "found": 36,
+      "valid": 36,
+      "inserted": 0,
+      "updated": 36,
+      "skipped": 0,
+      "errors": 0
+    },
+    "movements": {
+      "found": 0,
+      "valid": 0,
+      "inserted": 0,
+      "updated": 0,
+      "skipped": 0,
+      "errors": 0
+    }
+  }
+}
