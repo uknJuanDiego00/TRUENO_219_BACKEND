@@ -18,6 +18,7 @@ const inventoryRoutes = require('./routes/inventory.routes');
 const pendingSaleRoutes = require('./routes/pendingSale.routes');
 
 const { errorHandler, notFoundHandler } = require('./middlewares/errorHandler');
+const mongoose = require('mongoose');
 
 const app = express();
 
@@ -27,10 +28,28 @@ app.use(helmet());
 // NoSQL injection prevention
 app.use(mongoSanitize());
 
-// CORS configuration (supports frontend dev server on port 5173, 5174, etc.)
+// CORS configuration (supports frontend dev server and production Render domain)
+const allowedOrigins = process.env.FRONTEND_URL
+  ? process.env.FRONTEND_URL.split(',').map((o) => o.trim())
+  : ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:3000', 'http://localhost:3001'];
+
 app.use(
   cors({
-    origin: true,
+    origin: (origin, callback) => {
+      // Allow requests with no origin (mobile apps, curl, server-to-server health checks)
+      if (!origin) return callback(null, true);
+      // In development allow any origin
+      if (process.env.NODE_ENV !== 'production') return callback(null, true);
+      // Check if origin is explicitly allowed or matches wildcard
+      if (allowedOrigins.includes(origin) || allowedOrigins.includes('*')) {
+        return callback(null, true);
+      }
+      // Allow any onrender.com origin
+      if (origin.endsWith('.onrender.com')) {
+        return callback(null, true);
+      }
+      return callback(new Error(`CORS no permitido para el origen: ${origin}`));
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
@@ -74,16 +93,21 @@ if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 
-// Health check endpoint
-app.get('/api/health', (req, res) => {
+// Health check endpoints (root and /api/health for Render / monitoring)
+const healthHandler = (req, res) => {
+  const dbStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
   res.json({
     success: true,
     message: 'API Trueno Inventario operativa',
     status: 'online',
+    database: dbStatus,
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || 'development',
   });
-});
+};
+
+app.get('/health', healthHandler);
+app.get('/api/health', healthHandler);
 
 // API Routes
 app.use('/api/auth', authRoutes);

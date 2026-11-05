@@ -22,12 +22,13 @@ const startServer = async () => {
       console.warn('⚠️ No se ha definido MONGODB_URI. Conexión a MongoDB omitida.');
     }
 
-    const server = app.listen(PORT, () => {
+    const HOST = process.env.HOST || '0.0.0.0';
+    const server = app.listen(PORT, HOST, () => {
       console.log('====================================================');
       console.log(`⚡ TRUENO INVENTARIO BACKEND`);
-      console.log(`🚀 Servidor ejecutándose en el puerto: ${PORT}`);
-      console.log(`🌐 URL base: http://localhost:${PORT}/api`);
-      console.log(`🏥 Health check: http://localhost:${PORT}/api/health`);
+      console.log(`🚀 Servidor ejecutándose en: http://${HOST}:${PORT}`);
+      console.log(`🌐 URL base API: http://${HOST}:${PORT}/api`);
+      console.log(`🏥 Health check: http://${HOST}:${PORT}/api/health`);
       console.log(`📦 Modo: ${process.env.NODE_ENV || 'development'}`);
       console.log('====================================================');
     });
