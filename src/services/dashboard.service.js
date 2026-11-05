@@ -6,6 +6,10 @@ const InventoryMovement = require('../models/InventoryMovement');
 
 class DashboardService {
   static async getSummary(userId) {
+    const scope = userId
+      ? { $or: [{ user: userId }, { user: null }, { user: { $exists: false } }] }
+      : {};
+
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
 
@@ -24,15 +28,15 @@ class DashboardService {
       lowStockProducts,
       recentMovements,
     ] = await Promise.all([
-      Product.countDocuments({ user: userId }),
-      Client.countDocuments({ user: userId }),
-      Sale.countDocuments({ user: userId }),
-      Sale.find({ user: userId, status: 'pagada' }).select('total items'),
-      Sale.find({ user: userId, date: { $gte: todayStart } }),
-      Sale.find({ user: userId, date: { $gte: monthStart } }),
-      Debt.find({ user: userId, status: { $ne: 'pagada' } }),
-      Product.find({ user: userId, $expr: { $lte: ['$stock', '$minStock'] } }).limit(10),
-      InventoryMovement.find({ user: userId }).sort({ createdAt: -1 }).limit(10),
+      Product.countDocuments(scope),
+      Client.countDocuments(scope),
+      Sale.countDocuments(scope),
+      Sale.find({ ...scope, status: 'pagada' }).select('total items'),
+      Sale.find({ ...scope, date: { $gte: todayStart } }),
+      Sale.find({ ...scope, date: { $gte: monthStart } }),
+      Debt.find({ ...scope, status: { $ne: 'pagada' } }),
+      Product.find({ ...scope, $expr: { $lte: ['$stock', '$minStock'] } }).limit(10),
+      InventoryMovement.find(scope).sort({ createdAt: -1 }).limit(10),
     ]);
 
     // Financial totals

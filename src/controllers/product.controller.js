@@ -10,22 +10,32 @@ const { asyncHandler, createError, parsePagination } = require('../utils/helpers
  */
 const getProducts = asyncHandler(async (req, res) => {
   const { search, category, lowStock, all } = req.query;
-  const filter = { user: req.user._id };
+  const userScope = {
+    $or: [{ user: req.user._id }, { user: null }, { user: { $exists: false } }],
+  };
+
+  const filter = { ...userScope };
 
   if (category) {
     filter.category = category;
   }
 
-  if (search) {
-    filter.$or = [
-      { name: { $regex: search, $options: 'i' } },
-      { sku: { $regex: search, $options: 'i' } },
-      { description: { $regex: search, $options: 'i' } },
-    ];
-  }
-
   if (lowStock === 'true') {
     filter.$expr = { $lte: ['$stock', '$minStock'] };
+  }
+
+  if (search) {
+    filter.$and = [
+      userScope,
+      {
+        $or: [
+          { name: { $regex: search, $options: 'i' } },
+          { sku: { $regex: search, $options: 'i' } },
+          { description: { $regex: search, $options: 'i' } },
+        ],
+      },
+    ];
+    delete filter.$or;
   }
 
   // If frontend asks for all items or does not specify pagination page
@@ -46,7 +56,7 @@ const getProducts = asyncHandler(async (req, res) => {
  */
 const getLowStockProducts = asyncHandler(async (req, res) => {
   const products = await Product.find({
-    user: req.user._id,
+    $or: [{ user: req.user._id }, { user: null }, { user: { $exists: false } }],
     $expr: { $lte: ['$stock', '$minStock'] },
   }).sort({ stock: 1 });
 
@@ -58,7 +68,7 @@ const getLowStockProducts = asyncHandler(async (req, res) => {
  */
 const getProductById = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const query = { user: req.user._id };
+  const query = {};
 
   if (mongoose.isValidObjectId(id)) {
     query._id = id;
@@ -129,7 +139,7 @@ const createProduct = asyncHandler(async (req, res) => {
  */
 const updateProduct = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const query = { user: req.user._id };
+  const query = {};
 
   if (mongoose.isValidObjectId(id)) {
     query._id = id;
@@ -178,7 +188,7 @@ const updateProduct = asyncHandler(async (req, res) => {
  */
 const deleteProduct = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const query = { user: req.user._id };
+  const query = {};
 
   if (mongoose.isValidObjectId(id)) {
     query._id = id;
@@ -204,7 +214,7 @@ const adjustProductStock = asyncHandler(async (req, res) => {
   const { delta, location = 'store', notes } = req.body;
 
   const targetStock = location === 'warehouse' ? 'warehouseStock' : 'stock';
-  const query = { user: req.user._id };
+  const query = {};
   if (mongoose.isValidObjectId(id)) {
     query._id = id;
   } else {
@@ -234,8 +244,7 @@ const adjustProductStock = asyncHandler(async (req, res) => {
 const transferProductStock = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const { from, to, quantity, notes } = req.body;
-
-  const query = { user: req.user._id };
+  const query = {};
   if (mongoose.isValidObjectId(id)) {
     query._id = id;
   } else {

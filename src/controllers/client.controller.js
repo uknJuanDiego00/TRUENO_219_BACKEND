@@ -11,14 +11,24 @@ const { asyncHandler, createError, parsePagination } = require('../utils/helpers
  */
 const getClients = asyncHandler(async (req, res) => {
   const { search, all } = req.query;
-  const filter = { user: req.user._id };
+  const userScope = {
+    $or: [{ user: req.user._id }, { user: null }, { user: { $exists: false } }],
+  };
+
+  const filter = { ...userScope };
 
   if (search) {
-    filter.$or = [
-      { name: { $regex: search, $options: 'i' } },
-      { document: { $regex: search, $options: 'i' } },
-      { phone: { $regex: search, $options: 'i' } },
+    filter.$and = [
+      userScope,
+      {
+        $or: [
+          { name: { $regex: search, $options: 'i' } },
+          { document: { $regex: search, $options: 'i' } },
+          { phone: { $regex: search, $options: 'i' } },
+        ],
+      },
     ];
+    delete filter.$or;
   }
 
   if (all === 'true' || req.query.limit === 'all') {
@@ -83,7 +93,7 @@ const createClient = asyncHandler(async (req, res) => {
  */
 const updateClient = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const query = { user: req.user._id };
+  const query = {};
 
   if (mongoose.isValidObjectId(id)) {
     query._id = id;
@@ -108,6 +118,20 @@ const updateClient = asyncHandler(async (req, res) => {
 
   if (!client) {
     throw createError('Cliente no encontrado', 404);
+  }
+
+  // Cascading update: if client name changed, update all debts and sales for this client
+  if (updateData.name) {
+    await Promise.allSettled([
+      Debt.updateMany(
+        { $or: [{ clientRef: client._id }, { clientId: client.originalId }] },
+        { $set: { clientName: updateData.name } }
+      ),
+      Sale.updateMany(
+        { $or: [{ clientRef: client._id }, { clientId: client.originalId }] },
+        { $set: { clientName: updateData.name } }
+      ),
+    ]);
   }
 
   return ApiResponse.success(res, client, 'Cliente actualizado exitosamente');

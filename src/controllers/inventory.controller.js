@@ -9,7 +9,10 @@ const { asyncHandler, createError, parsePagination } = require('../utils/helpers
  */
 const getInventory = asyncHandler(async (req, res) => {
   const { search, lowStock } = req.query;
-  const filter = { user: req.user._id };
+  const userScope = {
+    $or: [{ user: req.user._id }, { user: null }, { user: { $exists: false } }],
+  };
+  const filter = { ...userScope };
 
   if (search) {
     filter.$or = [
@@ -70,7 +73,10 @@ const createMovement = asyncHandler(async (req, res) => {
  */
 const getMovements = asyncHandler(async (req, res) => {
   const { productId, type } = req.query;
-  const filter = { user: req.user._id };
+  const userScope = {
+    $or: [{ user: req.user._id }, { user: null }, { user: { $exists: false } }],
+  };
+  const filter = { ...userScope };
 
   if (productId) filter.product = productId;
   if (type) filter.type = type;

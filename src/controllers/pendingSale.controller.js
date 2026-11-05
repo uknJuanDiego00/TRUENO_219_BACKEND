@@ -9,7 +9,9 @@ const { asyncHandler, createError } = require('../utils/helpers');
  * @route GET /api/pending-sales
  */
 const getPendingSales = asyncHandler(async (req, res) => {
-  const pending = await PendingSale.find({ user: req.user._id }).sort({ createdAt: -1 });
+  const pending = await PendingSale.find({
+    $or: [{ user: req.user._id }, { user: null }, { user: { $exists: false } }],
+  }).sort({ createdAt: -1 });
   return ApiResponse.success(res, pending);
 });
 
@@ -41,7 +43,7 @@ const createPendingSale = asyncHandler(async (req, res) => {
  */
 const updatePendingSale = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const query = { user: req.user._id };
+  const query = {};
 
   if (mongoose.isValidObjectId(id)) {
     query._id = id;
@@ -62,7 +64,7 @@ const updatePendingSale = asyncHandler(async (req, res) => {
  */
 const deletePendingSale = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const query = { user: req.user._id };
+  const query = {};
 
   if (mongoose.isValidObjectId(id)) {
     query._id = id;
@@ -85,7 +87,7 @@ const confirmPendingSale = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const { paymentMethod, paid } = req.body;
 
-  const query = { user: req.user._id };
+  const query = {};
   if (mongoose.isValidObjectId(id)) {
     query._id = id;
   } else {

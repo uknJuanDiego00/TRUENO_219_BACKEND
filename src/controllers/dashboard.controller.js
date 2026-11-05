@@ -30,7 +30,7 @@ const getSalesByPeriod = asyncHandler(async (req, res) => {
   startDate.setHours(0, 0, 0, 0);
 
   const sales = await Sale.find({
-    user: req.user._id,
+    $or: [{ user: req.user._id }, { user: null }, { user: { $exists: false } }],
     date: { $gte: startDate },
     status: { $ne: 'anulada' },
   }).sort({ date: 1 });

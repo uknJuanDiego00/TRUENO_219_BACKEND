@@ -12,14 +12,21 @@ const { asyncHandler, createError, parsePagination } = require('../utils/helpers
  */
 const getSales = asyncHandler(async (req, res) => {
   const { status, paymentMethod, startDate, endDate, clientId, all } = req.query;
-  const filter = { user: req.user._id };
+  const userScope = {
+    $or: [{ user: req.user._id }, { user: null }, { user: { $exists: false } }],
+  };
+  const filter = { ...userScope };
 
   if (status) filter.status = status;
   if (paymentMethod) filter.paymentMethod = paymentMethod;
 
   if (clientId) {
     if (mongoose.isValidObjectId(clientId)) {
-      filter.$or = [{ clientRef: clientId }, { clientId: Number(clientId) || -1 }];
+      filter.$and = [
+        userScope,
+        { $or: [{ clientRef: clientId }, { clientId: Number(clientId) || -1 }] },
+      ];
+      delete filter.$or;
     } else {
       filter.clientId = Number(clientId);
     }
@@ -48,7 +55,7 @@ const getSales = asyncHandler(async (req, res) => {
  */
 const getSaleById = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const query = { user: req.user._id };
+  const query = {};
 
   if (mongoose.isValidObjectId(id)) {
     query._id = id;
@@ -79,7 +86,7 @@ const createSale = asyncHandler(async (req, res) => {
  */
 const cancelSale = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const query = { user: req.user._id };
+  const query = {};
 
   if (mongoose.isValidObjectId(id)) {
     query._id = id;

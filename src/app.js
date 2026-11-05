@@ -109,7 +109,7 @@ const healthHandler = (req, res) => {
 app.get('/health', healthHandler);
 app.get('/api/health', healthHandler);
 
-// API Routes
+// API Routes (mounted both with /api and root fallback for resilience)
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/clients', clientRoutes);
@@ -122,6 +122,20 @@ app.use('/api/settings', configRoutes); // Alias for frontend SettingsService
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/inventory', inventoryRoutes);
 app.use('/api/pending-sales', pendingSaleRoutes);
+
+// Fallback mounts directly on root in case frontend VITE_API_URL is configured without '/api'
+app.use('/auth', authRoutes);
+app.use('/products', productRoutes);
+app.use('/clients', clientRoutes);
+app.use('/sales', saleRoutes);
+app.use('/debts', debtRoutes);
+app.use('/payments', paymentRoutes);
+app.use('/categories', categoryRoutes);
+app.use('/config', configRoutes);
+app.use('/settings', configRoutes);
+app.use('/dashboard', dashboardRoutes);
+app.use('/inventory', inventoryRoutes);
+app.use('/pending-sales', pendingSaleRoutes);
 
 // Error handlers
 app.use(notFoundHandler);
